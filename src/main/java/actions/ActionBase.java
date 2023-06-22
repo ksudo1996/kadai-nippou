@@ -16,7 +16,7 @@ import constants.ForwardConst;
 import constants.PropertyConst;
 
 /**
- * 各Actionクラスの親クラス。共通処理を行う
+ * 各Actionクラスの親クラス。共通処理を行う。
  *
  */
 public abstract class ActionBase {
@@ -29,7 +29,7 @@ public abstract class ActionBase {
      * サーブレットコンテキスト、リクエスト、レスポンスをクラスフィールドに設定
      * @param servletContext
      * @param servletRequest
-     * @param servletResponse response
+     * @param servletResponse
      */
     public void init(
             ServletContext servletContext,
@@ -53,25 +53,28 @@ public abstract class ActionBase {
      * @throws IOException
      */
     protected void invoke()
-              throws ServletException,IOException {
+            throws ServletException, IOException {
+
         Method commandMethod;
         try {
+
             // パラメータからcommandを取得
             String command = request.getParameter(ForwardConst.CMD.getValue());
 
-            // commandに該当するメソッドを実行
+            // ommandに該当するメソッドを実行する
             // (例: action=Employee command=show の場合 EmployeeActionクラスのshow()メソッドを実行する)
             commandMethod = this.getClass().getDeclaredMethod(command, new Class[0]);
-            commandMethod.invoke(this, new Object[0]); // メソッドに渡す引数はなし
+            commandMethod.invoke(this, new Object[0]); //メソッドに渡す引数はなし
 
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NullPointerException e ) {
+                | InvocationTargetException | NullPointerException e) {
 
             // 発生した例外をコンソールに表示
             e.printStackTrace();
-            // commandの値が不正で実行出来ない場合エラー画面を呼び出し
+            // commandの値が不正で実行できない場合エラー画面を呼び出し
             forward(ForwardConst.FW_ERR_UNKNOWN);
         }
+
     }
 
     /**
@@ -88,6 +91,7 @@ public abstract class ActionBase {
 
         // jspファイルの呼び出し
         dispatcher.forward(request, response);
+
     }
 
     /**
@@ -97,30 +101,32 @@ public abstract class ActionBase {
      * @throws ServletException
      * @throws IOException
      */
-    protected void redirect(ForwardConst action, ForwardConst command) throws ServletException, IOException {
+    protected void redirect(ForwardConst action, ForwardConst command)
+            throws ServletException, IOException {
 
         // URLを構築
-        String redirectUrl = request.getContextPath() + "/?action" + action.getValue();
-        if(command != null) {
+        String redirectUrl = request.getContextPath() + "/?action=" + action.getValue();
+        if (command != null) {
             redirectUrl = redirectUrl + "&command=" + command.getValue();
         }
 
-        // URlへリダイレクト
+        // URLへリダイレクト
         response.sendRedirect(redirectUrl);
+
     }
 
     /**
-     * CSRF対策 token 不正の場合はエラー画面
+     * CSRF対策 token不正の場合はエラー画面を表示
      * @return true: token有効 false: token不正
      * @throws ServletException
      * @throws IOException
      */
     protected boolean checkToken() throws ServletException, IOException {
 
-        // パラメータからtoken の値を取得
+        // パラメータからtokenの値を取得
         String _token = getRequestParam(AttributeConst.TOKEN);
 
-        if(_token == null || !(_token.equals(getTokenId()))) {
+        if (_token == null || !(_token.equals(getTokenId()))) {
 
             // tokenが設定されていない、またはセッションIDと一致しない場合はエラー画面を表示
             forward(ForwardConst.FW_ERR_UNKNOWN);
@@ -129,6 +135,7 @@ public abstract class ActionBase {
         } else {
             return true;
         }
+
     }
 
     /**
@@ -141,12 +148,12 @@ public abstract class ActionBase {
 
     /**
      * リクエストから表示を要求されているページ数を取得し、返却する
-     * @return 要求されているページ数(要求が無い場合は1)
+     * @return 要求されているページ数(要求がない場合は1)
      */
     protected int getPage() {
         int page;
         page = toNumber(request.getParameter(AttributeConst.PAGE.getValue()));
-        if(page == Integer.MIN_VALUE ) {
+        if (page == Integer.MIN_VALUE) {
             page = 1;
         }
         return page;
@@ -154,14 +161,14 @@ public abstract class ActionBase {
 
     /**
      * 文字列を数値に変換する
-     * @param strNumber 変換前の文字列
+     * @param strNumber 変換前文字列
      * @return 変換後数値
      */
     protected int toNumber(String strNumber) {
         int number = 0;
         try {
             number = Integer.parseInt(strNumber);
-        } catch(Exception e) {
+        } catch (Exception e) {
             number = Integer.MIN_VALUE;
         }
         return number;
@@ -169,11 +176,11 @@ public abstract class ActionBase {
 
     /**
      * 文字列をLocalDate型に変換する
-     * @param strDate 変換前の文字列
+     * @param strDate 変換前文字列
      * @return 変換後LocalDateインスタンス
      */
     protected LocalDate toLocalDate(String strDate) {
-        if(strDate == null || strDate.equals("")) {
+        if (strDate == null || strDate.equals("")) {
             return LocalDate.now();
         }
         return LocalDate.parse(strDate);
@@ -189,9 +196,9 @@ public abstract class ActionBase {
     }
 
     /**
-     *リクエストスコープにパラメータを設定する
-     *@param key パラメータ名
-     *@preturn パラメータの値
+     * リクエストスコープにパラメータを設定する
+     * @param key パラメータ名
+     * @param value パラメータの値
      */
     protected <V> void putRequestScope(AttributeConst key, V value) {
         request.setAttribute(key.getValue(), value);
@@ -233,4 +240,5 @@ public abstract class ActionBase {
     protected <R> R getContextScope(PropertyConst key) {
         return (R) context.getAttribute(key.getValue());
     }
+
 }
