@@ -13,7 +13,7 @@ public interface JpaConst {
     int ROW_PER_PAGE = 15; // 1ページに表示するレコードの数
 
     // 従業員テーブル
-    String TABLE_EMP = "employess"; // テーブル名
+    String TABLE_EMP = "employees"; // テーブル名
     // 従業員テーブルカラム
     String EMP_COL_ID = "id"; // id
     String EMP_COL_CODE = "code"; // 社員番号
